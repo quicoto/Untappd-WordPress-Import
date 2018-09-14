@@ -25,7 +25,7 @@ if ($data) {
     echo "<pre>";
 
     $index = 0;
-    foreach($json['beers']['items'] as $beer){
+    foreach($json['response']['beers']['items'] as $beer){
       // if ($index >= $beers_to_check) break;
 
       // Prepare the WordPress data
