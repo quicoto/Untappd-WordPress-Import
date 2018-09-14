@@ -33,9 +33,9 @@ if ($data) {
       $beer__post_content = (string)$beer['beer']['beer_description'];
       $beer__beer_style = (string)$beer['beer']['beer_style'];
       $beer__bid = (string)$beer['beer']['bid'];
-      $beer__count = (string)$beer['beer']['count'];
-      $beer__rating_score = (string)$beer['beer']['rating_score'];
-      $beer__recent_created_at = (string)$beer['beer']['recent_created_at'];
+      $beer__count = (string)$beer['count'];
+      $beer__rating_score = (string)$beer['rating_score'];
+      $beer__recent_created_at = (string)$beer['recent_created_at'];
 
       // Look for the Beer ID in the database, see if it exists
       // If it exists, we want to update the values (in case I've changed the rating)
