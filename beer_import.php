@@ -65,6 +65,8 @@ if ($data) {
         );
 
         wp_update_post($post);
+
+        $post_id = get_the_ID();
       } else {
         // Insert new
         $post = array(
