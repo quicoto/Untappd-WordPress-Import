@@ -26,7 +26,7 @@ if ($data) {
 
     $index = 0;
     foreach($json['response']['beers']['items'] as $beer){
-      // if ($index >= $beers_to_check) break;
+      if ($index >= $beers_to_check) break;
 
       // Prepare the WordPress data
       $beer__post_title = (string)$beer['beer']['beer_name'];
