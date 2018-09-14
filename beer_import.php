@@ -1,11 +1,11 @@
 <?php
 
-// include_once("wp-load.php");
+include_once("../wp-load.php");
 
 include_once ("./config.php");
 
 $url = 'https://api.untappd.com/v4/user/beers/quicoto?client_id=' . $client_id .  '&client_secret=' . $client_secret . '&sort=date&limit=50';
-$url = 'http://localhost:3000/response'; // Fake the call with https://github.com/typicode/json-server
+// $url = 'http://localhost:3000/response'; // Fake the call with https://github.com/typicode/json-server
 
 // This will loop through the latest 10 beers, should be enough.
 // Don't think I'll check in in more than 10 beers in 1 day
@@ -23,13 +23,10 @@ if ($data) {
 
   if ($json) {
     echo "<pre>";
-    // print_r($json);
 
     $index = 0;
     foreach($json['beers']['items'] as $beer){
-      if ($index >= $beers_to_check) break;
-
-      print_r($beer);
+      // if ($index >= $beers_to_check) break;
 
       // Prepare the WordPress data
       $beer__post_title = (string)$beer['beer']['beer_name'];
@@ -39,8 +36,6 @@ if ($data) {
       $beer__count = (string)$beer['beer']['count'];
       $beer__rating_score = (string)$beer['beer']['rating_score'];
       $beer__recent_created_at = (string)$beer['beer']['recent_created_at'];
-
-      die();
 
       // Look for the Beer ID in the database, see if it exists
       // If it exists, we want to update the values (in case I've changed the rating)
@@ -57,58 +52,40 @@ if ($data) {
         )
       );
 
-      /*
-
       $query = new WP_Query( $args );
 
-      if( !$query->have_posts() ) {
-        foreach ($item->children('http://www.georss.org/georss') as $geo) {
+      if( $query->have_posts() ) {
+        the_post();
 
-          $geo = explode(' ', $geo);
-
-              $item->lat = $geo[0];
-              $item->lng = $geo[1];
-          }
-
-        $item->description = str_replace('@', '', $item->description);
-
-        $new_title = explode('-', $item->description);
-
-        if(sizeof($new_title) > 1) $new_title = $new_title[1]. " @".$new_title[0];
-        else $new_title = $new_title[0];
-
-        $item->title = substr($new_title, 1);
-
-        $item_time = $item->pubDate;
-
-        $dt = new DateTime($item_time);
-        $post_date = $dt->format('Y-m-d H:i:s');
-
-        // Insert post to the database
-
+        // Update it
         $post = array(
-          'post_author'    => 1,
-          'post_category'  => array('2'),
-          'post_date'      =>  $post_date,
-          'post_date_gmt'  =>  $post_date,
-          'post_status'    => 'publish',
-          'post_title'     => (string)$item->title,
-          'post_content'   => "<a href='" . (string)$item->link . "' target='_blank'>" . (string)$item->link . "</a>",
-          'post_type'      => 'post'
+          'ID'             => get_the_ID(),
+          'post_title'     => $beer__post_title,
+          'post_content'   => $beer__post_content,
         );
 
-        print_r($post);
+        wp_update_post($post);
+      } else {
+        // Insert new
+        $post = array(
+          'post_author'    => 1,
+          'post_status'    => 'publish',
+          'post_title'     => $beer__post_title,
+          'post_content'   => $beer__post_content,
+          'post_type'      => 'beer'
+        );
 
-        $post_id = wp_insert_post( $post , $error);
+        $post_id = wp_insert_post( $post);
+      }
 
-        print_r($post_id);
-
-        update_post_meta($post_id, 'foursquare_checkin_id', (string)$item->guid);
-        update_post_meta($post_id, 'lat', (string)$item->lat);
-        update_post_meta($post_id, 'lng', (string)$item->lng);
-      }*/
+      // Update meta fields
+      update_post_meta($post_id, 'bid', $beer__bid);
+      update_post_meta($post_id, 'beer_style', $beer__beer_style);
+      update_post_meta($post_id, 'count', $beer__count);
+      update_post_meta($post_id, 'rating_score', $beer__rating_score);
+      update_post_meta($post_id, 'recent_created_at', $beer__recent_created_at);
 
       $index++;
-    }
+    } // end foreach
   } // if json
 } // if data
