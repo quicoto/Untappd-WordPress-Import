@@ -42,7 +42,7 @@ if ($data) {
         'meta_query' => array(
           array(
             'key' => 'bid',
-            'value' => (string)$beer['bid'],
+            'value' => $beer__bid,
             'compare' => 'LIKE'
           ),
         'posts_per_page' => 1
@@ -52,17 +52,19 @@ if ($data) {
       $query = new WP_Query( $args );
 
       if( $query->have_posts() ) {
-        the_post();
+        while ( $query->have_posts() ) {
+          $query->the_post();
 
-        // Update it
-        $post = array(
-          'ID'             => get_the_ID(),
-          'post_title'     => $beer__post_title
-        );
+          // Update it
+          $post = array(
+            'ID'             => get_the_ID(),
+            'post_title'     => $beer__post_title
+          );
 
-        wp_update_post($post);
+          wp_update_post($post);
 
-        $post_id = get_the_ID();
+          $post_id = get_the_ID();
+        } // end while
       } else {
         // Insert new
         $post = array(
