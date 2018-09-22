@@ -78,7 +78,7 @@ if ($data) {
       // Only update if the last checkin ID is different than the current checking we're looking at
       $last_checkin_id = get_post_meta($post_id, 'last_checkin_id', true);
 
-      if ($last_checkin_id !== $beer__last_checkin_id) {
+      if (!$last_checkin_id || $last_checkin_id !== $beer__last_checkin_id) {
         update_post_meta($post_id, 'bid', $beer__bid);
         update_post_meta($post_id, 'beer_style', $beer__beer_style);
         $post_beer_count = get_post_meta($post_id, 'count', true);
