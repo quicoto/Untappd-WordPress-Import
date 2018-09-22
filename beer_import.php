@@ -52,7 +52,7 @@ if ($data) {
         'meta_query' => array(
           array(
             'key' => 'bid',
-            'value' => (string)$beer['beer']['bid'],
+            'value' => (string)$beer['bid'],
             'compare' => 'LIKE'
           ),
         'posts_per_page' => 1
