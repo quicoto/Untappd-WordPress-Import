@@ -19,7 +19,7 @@ if ($data) {
 
   if ($json) {
     echo "<pre>";
-    foreach($json['response']['beers']['items'] as $checkin){
+    foreach($json['response']['checkins']['items'] as $checkin){
       // Each checkin has a beer.
       // We need to look the entire DB to see if the beer is already created
       // If no, we create it
