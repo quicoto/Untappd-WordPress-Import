@@ -4,12 +4,8 @@ include_once("../wp-load.php");
 
 include_once ("./config.php");
 
-$url = 'https://api.untappd.com/v4/user/beers/quicoto?client_id=' . $client_id .  '&client_secret=' . $client_secret . '&sort=date&limit=50';
+$url = 'https://api.untappd.com/v4/user/checkins/quicoto?client_id=' . $client_id .  '&client_secret=' . $client_secret . '&sort=date&limit=10';
 // $url = 'http://localhost:3000/response'; // Fake the call with https://github.com/typicode/json-server
-
-// This will loop through the latest 10 beers, should be enough.
-// Don't think I'll check in in more than 10 beers in 1 day
-$beers_to_check = 10;
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
@@ -25,17 +21,28 @@ if ($data) {
     echo "<pre>";
 
     $index = 0;
-    foreach($json['response']['beers']['items'] as $beer){
-      if ($index >= $beers_to_check) break;
 
-      // Prepare the WordPress data
-      $beer__post_title = (string)$beer['beer']['beer_name'];
-      $beer__post_content = (string)$beer['beer']['beer_description'];
-      $beer__beer_style = (string)$beer['beer']['beer_style'];
-      $beer__bid = (string)$beer['beer']['bid'];
-      $beer__count = (string)$beer['count'];
-      $beer__rating_score = (string)$beer['rating_score'];
-      $beer__recent_created_at = (string)$beer['recent_created_at'];
+    if ($json['response']) {
+      $items = $json['response']['beers']['items'];
+    } else {
+      // For local dev.
+      $items = $json['beers']['items'];
+    }
+
+    foreach($items as $checkin){
+      // Each checkin has a beer.
+      // We need to look the entire DB to see if the beer is already created
+      // If no, we create it
+
+      // Prepare the Beer WordPress data
+      $beer = $checkin['beer'];
+      $beer__post_title = (string)$beer['beer_name'];
+      $beer__beer_style = (string)$beer['beer_style'];
+      $beer__bid = (string)$beer['bid'];
+      $beer__count = (string)$checkin['count'];
+      $beer__rating_score = (string)$checkin['rating_score'];
+      $beer__created_at = (string)$checkin['created_at'];
+      $beer__last_checkin_id = (string)$checkin['checkin_id'];
 
       // Look for the Beer ID in the database, see if it exists
       // If it exists, we want to update the values (in case I've changed the rating)
@@ -54,14 +61,13 @@ if ($data) {
 
       $query = new WP_Query( $args );
 
-      if( $query->have_posts() ) {
+      if( !$query->have_posts() ) {
         the_post();
 
         // Update it
         $post = array(
           'ID'             => get_the_ID(),
-          'post_title'     => $beer__post_title,
-          'post_content'   => $beer__post_content,
+          'post_title'     => $beer__post_title
         );
 
         wp_update_post($post);
@@ -73,21 +79,24 @@ if ($data) {
           'post_author'    => 1,
           'post_status'    => 'publish',
           'post_title'     => $beer__post_title,
-          'post_content'   => $beer__post_content,
           'post_type'      => 'beer'
         );
 
         $post_id = wp_insert_post( $post);
       }
 
-      // Update meta fields
-      update_post_meta($post_id, 'bid', $beer__bid);
-      update_post_meta($post_id, 'beer_style', $beer__beer_style);
-      update_post_meta($post_id, 'count', $beer__count);
-      update_post_meta($post_id, 'rating_score', $beer__rating_score);
-      update_post_meta($post_id, 'recent_created_at', $beer__recent_created_at);
+      // Only update if the last checkin ID is different than the current checking we're looking at
+      $last_checkin_id = get_post_meta($post_id, 'last_checkin_id', true);
 
-      $index++;
+      if ($last_checkin_id !== $beer__last_checkin_id) {
+        update_post_meta($post_id, 'bid', $beer__bid);
+        update_post_meta($post_id, 'beer_style', $beer__beer_style);
+        $post_beer_count = get_post_meta($post_id, 'count', true);
+        update_post_meta($post_id, 'count', $post_beer_count + 1);
+        update_post_meta($post_id, 'rating_score', $beer__rating_score);
+        update_post_meta($post_id, 'recent_created_at', $beer__created_at);
+        update_post_meta($post_id, 'last_checkin_id', $beer__last_checkin_id);
+      }
     } // end foreach
   } // if json
 } // if data
