@@ -61,7 +61,7 @@ if ($data) {
 
       $query = new WP_Query( $args );
 
-      if( !$query->have_posts() ) {
+      if( $query->have_posts() ) {
         the_post();
 
         // Update it
