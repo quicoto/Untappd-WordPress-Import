@@ -4,7 +4,7 @@ include_once("../wp-load.php");
 
 include_once ("./config.php");
 
-$url = 'https://api.untappd.com/v4/user/checkins/quicoto?client_id=' . $client_id .  '&client_secret=' . $client_secret . '&sort=date&limit=50';
+$url = 'https://api.untappd.com/v4/user/checkins/quicoto?client_id=' . $client_id .  '&client_secret=' . $client_secret . '&sort=date&limit=10';
 // $url = 'http://localhost:3000/response'; // Fake the call with https://github.com/typicode/json-server
 
 $ch = curl_init();
