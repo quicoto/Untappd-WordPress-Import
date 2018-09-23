@@ -35,7 +35,7 @@ if ($data) {
         'meta_query' => array(
           array(
             'key' => 'checkin_id',
-            'value' => $beer__last_checkin_id,
+            'value' => $beer__checkin_id,
             'compare' => 'LIKE'
           ),
         'posts_per_page' => 1
