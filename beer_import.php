@@ -54,25 +54,25 @@ if ($data) {
       if ($post_list) {
         foreach ( $post_list as $post ) {
           // Update it
-          $post = array(
+          $post_to_be_updated = array(
             'ID'             => $post->ID,
             'post_title'     => $beer__post_title
           );
 
-          wp_update_post($post);
+          wp_update_post($post_to_be_updated);
 
           $post_id = $post->ID;
         }
       } else {
         // Insert new
-        $post = array(
+        $post_to_be_inserted = array(
           'post_author'    => 1,
           'post_status'    => 'publish',
           'post_title'     => $beer__post_title,
           'post_type'      => 'beer'
         );
 
-        $post_id = wp_insert_post( $post);
+        $post_id = wp_insert_post( $post_to_be_inserted);
       }
 
       // Only update if the last checkin ID is different than the current checking we're looking at
