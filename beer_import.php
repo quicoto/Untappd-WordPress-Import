@@ -49,22 +49,20 @@ if ($data) {
         )
       );
 
-      $query = new WP_Query( $args );
+      $post_list = get_posts($args);
 
-      if( $query->have_posts() ) {
-        while ( $query->have_posts() ) {
-          $query->the_post();
-
+      if ($post_list) {
+        foreach ( $post_list as $post ) {
           // Update it
           $post = array(
-            'ID'             => get_the_ID(),
+            'ID'             => $post->ID,
             'post_title'     => $beer__post_title
           );
 
           wp_update_post($post);
 
-          $post_id = get_the_ID();
-        } // end while
+          $post_id = $post->ID;
+        }
       } else {
         // Insert new
         $post = array(
